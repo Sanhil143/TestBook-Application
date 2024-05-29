@@ -54,7 +54,7 @@ class UserDatabase {
       const result = await pool
         .request()
         .input('attemptId', sql.Int, attemptId)
-        .input('categoryId', sql.Int, difficultyId)
+        .input('difficultyId', sql.Int, difficultyId)
         .input('questionId', sql.Int, questionId)
         .input('optionId', sql.Int, optionId)
         .query(
