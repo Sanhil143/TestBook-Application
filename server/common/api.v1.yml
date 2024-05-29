@@ -1,0 +1,816 @@
+swagger: '2.0'
+info:
+  version: 1.0.0
+  title: Test-Series
+  description: Test-Series
+basePath: /api/v1
+components:
+  schemas:
+    Profile:
+      type: object
+      properties:
+        id:
+          type: integer
+        user_id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        website:
+          type: string
+        bio:
+          type: string
+        created_at:
+          type: string
+        updated_at:
+          type: string
+    ProfileUpdate:
+      type: object
+      properties:
+        full_name:
+          type: string
+          description: The full name of the user
+        username:
+          type: string
+          description: The username of the user
+        email:
+          type: string
+          format: email
+          description: The email address of the user
+        password:
+          type: string
+          description: The new password for the user
+        bio:
+          type: string
+          description: A short bio of the user
+        location:
+          type: string
+          description: The location of the user
+        website:
+          type: string
+          format: uri
+          description: The website URL of the user
+        image:
+          type: string
+          format: uri
+          description: The profile image URL of the user
+      required:
+        - full_name
+        - username
+        - email
+    SearchQuery:
+      type: object
+      properties:
+        query:
+          type: string
+        filters:
+          type: object
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+    jwtAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  parameters:
+    Gender:
+      in: query
+      name: gender
+      schema:
+        type: string
+        enum:
+          - Male
+          - Female
+        description: The gender to filter profiles by
+      example: Male
+
+    Page:
+      in: query
+      name: page
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+        description: The page number to retrieve
+      example: 1
+
+    PerPage:
+      in: query
+      name: perPage
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 50
+        default: 10
+        description: The number of results to retrieve per page
+      example: 10
+  responses:
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+                example: Unauthorized
+    Forbidden:
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+                example: Forbidden
+    NotFound:
+      description: Not Found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+                example: Not Found
+    InternalServerError:
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+                example: Internal Server Error
+    BadRequest:
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+                example: Bad Request
+tags:
+  - name: Admin
+    description: Endpoints for Admin
+  - name: Authorization
+    description: Endpoints for Authorization
+  - name: User
+    description: Endpoints for User
+  - name: Course
+    description: Endpoints for Course
+  - name: Exam
+    description: Endpoints for Exam
+  - name: Question
+    description: Endpoints for Question
+paths:
+  /spec:
+    get:
+      tags:
+        - Specification
+      responses:
+        200:
+          description: Return the API specification
+
+  /auth/signup:
+    post:
+      tags:
+        - Authorization
+      summary: Register user data
+      description: >-
+        Register
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      responses:
+        '201':
+          description: Registerd successfully
+          examples:
+            application/json:
+              data: data
+          schema:
+            type: object
+      parameters:
+        - in: body
+          name: Body
+          description: 'Signup'
+          required: true
+          schema:
+            type: object
+            properties:
+              firstName:
+                type: string
+              lastName:
+                type: string
+              email:
+                type: string
+              password:
+                type: string
+              role:
+                type: string
+                enum:
+                  - admin
+                  - user
+                default: user
+  /auth/login:
+    post:
+      tags:
+        - Authorization
+      summary: Login user data
+      description: >-
+        Register
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Login successfully
+          examples:
+            application/json:
+              data: data
+          schema:
+            type: object
+      parameters:
+        - in: body
+          name: Body
+          description: 'Signup'
+          required: true
+          schema:
+            type: object
+            properties:
+              email:
+                type: string
+              password:
+                type: string
+
+  /user/startExam/{userId}/{examId}:
+    post:
+      tags:
+        - User
+      summary: start exam
+      security:
+        - basicAuth: []
+        - bearerAuth: []
+      description: >-
+        start exam
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: start exam
+      parameters:
+        - in: path
+          name: userId
+          type: integer
+          required: true
+        - in: path
+          name: examId
+          type: integer
+          required: true
+  /user/markAnswer/{attemptId}/{difficultyId}/{questionId}/{optionId}:
+    post:
+      tags:
+        - User
+      summary: mark answer
+      security:
+        - basicAuth: []
+        - bearerAuth: []
+      description: >-
+        mark answer
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: mark answer
+      parameters:
+        - in: path
+          name: attemptId
+          type: integer
+          required: true
+        - in: path
+          name: difficultyId
+          type: integer
+          required: true
+        - in: path
+          name: questionId
+          type: integer
+          required: true
+        - in: path
+          name: optionId
+          type: integer
+          required: true
+  /user/submitExam/{userId}/{attemptId}:
+    post:
+      tags:
+        - User
+      summary: submit exam
+      security:
+        - basicAuth: []
+        - bearerAuth: []
+      description: >-
+        submit exam
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: submit exam
+      parameters:
+        - in: path
+          name: attemptId
+          type: integer
+          required: true
+        - in: path
+          name: userId
+          type: integer
+          required: true
+  /user/examResults/{userId}:
+    get:
+      tags:
+        - User
+        - Admin
+      summary: all results
+      security:
+        - basicAuth: []
+        - bearerAuth: []
+      description: >-
+        all result
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: all result
+      parameters:
+        - in: path
+          name: userId
+          type: integer
+          required: true
+  /user/allResult:
+    get:
+      summary: Get all results
+      security:
+        - basicAuth: []
+        - bearerAuth: []
+      tags:
+        - Admin
+      parameters:
+        - in: query
+          name: page
+          type: integer
+          required: true
+        - in: query
+          name: perPage
+          type: integer
+          required: true
+      responses:
+        '200':
+          description: OK
+        '500':
+          description: Internal Server Error
+  /user/checkExamReport/{attemptId}/{userId}:
+    get:
+      summary: Get all results
+      security:
+        - basicAuth: []
+        - bearerAuth: []
+      tags:
+        - User
+      parameters:
+        - in: path
+          name: attemptId
+          type: integer
+          required: true
+        - in: path
+          name: userId
+          type: integer
+          required: true
+      responses:
+        '200':
+          description: OK
+        '500':
+          description: Internal Server Error
+
+  /course/addCourse:
+    post:
+      tags:
+        - Course
+        - Admin
+      summary: add new Course
+      security:
+        - basicAuth: []
+        - bearerAuth: []
+      description: >-
+        add new Course
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: add new course
+      parameters:
+        - in: body
+          name: Body
+          description: 'Add Course'
+          required: true
+          schema:
+            type: object
+            properties:
+              categoryId:
+                type: integer
+              courseTitle:
+                type: string
+              courseDescription:
+                type: string
+              previewLink:
+                type: string
+              authorName:
+                type: string
+              authorDescription:
+                type: string
+  /course/addCourseModule:
+    post:
+      tags:
+        - Course
+        - Admin
+      summary: add new module on Course
+      security:
+        - basicAuth: []
+        - bearerAuth: []
+      description: >-
+        add new Course Module
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: add new Module on course
+      parameters:
+        - in: body
+          name: Body
+          description: 'Add Course Module'
+          required: true
+          schema:
+            type: object
+            properties:
+              courseId:
+                type: integer
+              moduleTitle:
+                type: string
+              moduleDescription:
+                type: string
+  /course/addModuleChapter:
+    post:
+      tags:
+        - Course
+        - Admin
+      summary: add new chapter on module
+      security:
+        - basicAuth: []
+        - bearerAuth: []
+      description: >-
+        add new chapter on module
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: add new chapter on module
+      parameters:
+        - in: body
+          name: Body
+          description: 'add new chapter on module'
+          required: true
+          schema:
+            type: object
+            properties:
+              moduleId:
+                type: integer
+              chapterTitle:
+                type: string
+              chapterDescription:
+                type: string
+              chapterUrl:
+                type: string
+  /course/allCourse:
+    get:
+      summary: Get all Courses
+      security:
+        - basicAuth: []
+        - bearerAuth: []
+      tags:
+        - Course
+      parameters:
+        - in: query
+          name: categoryId
+          type: integer
+          required: false
+        - in: query
+          name: page
+          type: integer
+          required: true
+        - in: query
+          name: perPage
+          type: integer
+          required: true
+      responses:
+        '200':
+          description: OK
+        '500':
+          description: Internal Server Error
+  /course/courseMdules/{courseId}:
+    get:
+      summary: Get all modules by Courses
+      security:
+        - basicAuth: []
+        - bearerAuth: []
+      tags:
+        - Course
+      parameters:
+        - in: path
+          name: courseId
+          type: integer
+          required: true
+      responses:
+        '200':
+          description: OK
+        '500':
+          description: Internal Server Error
+  /course/moduleChapter/{moduleId}:
+    get:
+      summary: Get all chapters by Courses modules
+      security:
+        - basicAuth: []
+        - bearerAuth: []
+      tags:
+        - Course
+      parameters:
+        - in: path
+          name: moduleId
+          type: integer
+          required: true
+      responses:
+        '200':
+          description: OK
+        '500':
+          description: Internal Server Error
+
+  /exam/createExam:
+    post:
+      tags:
+        - Exam
+        - Admin
+      summary: add new Exam
+      security:
+        - basicAuth: []
+        - bearerAuth: []
+      description: >-
+        add new Exam
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: add new exams
+      parameters:
+        - in: body
+          name: Body
+          description: 'Add Exams'
+          required: true
+          schema:
+            type: object
+            properties:
+              examTitle:
+                type: string
+              categoryId:
+                type: integer
+              examDescription:
+                type: string
+              examDuration:
+                type: string
+                enum:
+                  - 1h
+                  - 1.5h
+                  - 2h
+                  - 2.5h
+                  - 3h
+                default: 1h
+  /exam/getAllExams:
+    get:
+      summary: Get all Exams
+      security:
+        - basicAuth: []
+        - bearerAuth: []
+      tags:
+        - Exam
+        - Admin
+      parameters:
+        - in: query
+          name: page
+          type: integer
+          required: true
+        - in: query
+          name: perPage
+          type: integer
+          required: true
+      responses:
+        '200':
+          description: OK
+        '500':
+          description: Internal Server Error
+  /exam/getExamById/{examId}:
+    get:
+      summary: Get Exams Details
+      security:
+        - basicAuth: []
+        - bearerAuth: []
+      tags:
+        - Exam
+        - Admin
+      parameters:
+        - in: path
+          name: examId
+          type: integer
+          required: true
+      responses:
+        '200':
+          description: OK
+        '500':
+          description: Internal Server Error
+  /exam/randomExamByCategory/{categoryId}:
+    get:
+      summary: Get Exams Details
+      security:
+        - basicAuth: []
+        - bearerAuth: []
+      tags:
+        - Exam
+        - Admin
+      parameters:
+        - in: path
+          name: categoryId
+          type: integer
+          required: true
+      responses:
+        '200':
+          description: OK
+        '500':
+          description: Internal Server Error
+  /exam/updateExam/{examId}:
+    patch:
+      summary: update Exam
+      security:
+        - basicAuth: []
+        - bearerAuth: []
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      tags:
+        - Exam
+        - Admin
+      parameters:
+        - in: path
+          name: examId
+          type: integer
+          required: true
+        - in: body
+          name: Body
+          description: 'Add Exams'
+          required: true
+          schema:
+            type: object
+            properties:
+              examTitle:
+                type: string
+              examDescription:
+                type: string
+              examDuration:
+                type: string
+                enum:
+                  - 1h
+                  - 1.5h
+                  - 2h
+                  - 2.5h
+                  - 3h
+      responses:
+        '200':
+          description: OK
+        '500':
+          description: Internal Server Error
+  /exam/deleteExam/{examId}:
+    delete:
+      tags:
+        - Exam
+        - Admin
+      summary: delete exam
+      security:
+        - basicAuth: []
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: examId
+          type: integer
+          required: true
+      responses:
+        '200':
+          description: OK
+        '500':
+          description: Internal Server Error
+
+
+  /question/createQuestion/{examId}:
+    post:
+      tags:
+        - Question
+        - Admin
+      summary: add question on exam
+      security:
+        - basicAuth: []
+        - bearerAuth: []
+      description: >-
+        add question on existing exam with options
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: add new exams
+      parameters:
+        - in: path
+          name: examId
+          type: integer
+          required: true
+        - in: body
+          name: Body
+          description: 'Add Questions'
+          required: true
+          schema:
+            type: object
+            properties:
+              questionName:
+                type: string
+              difficultyId:
+                type: integer
+              options:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    optionName:
+                      type: string
+                    isCorrect:
+                      type: boolean
+  /question/getAllQuestionsbyExamId/{examId}:
+    get:
+      tags:
+        - Question
+      summary: fetch all question with options
+      security:
+        - basicAuth: []
+        - bearerAuth: []
+      description: >-
+        get all questions with options
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: add new exams
+      parameters:
+        - in: path
+          name: examId
+          type: integer
+          required: true
+
+securityDefinitions:
+  basicAuth:
+    type: basic
+  bearerAuth:
+    type: apiKey
+    name: Authorization
+    in: header
+    description: start with bearer
